@@ -1,13 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
+const path = require('path');
 
 app.use(cors())
+app.use(bodyParser.json())
 
 var mysql = require('mysql2');
 
-var con = mysql.createConnection({
+// Create connection to mySQL database
+var connection = mysql.createConnection({
   host: "localhost",
   user: "michael",
   password: "Mysqlpassword1+",
@@ -16,69 +20,89 @@ var con = mysql.createConnection({
 
 var url = require('url');
 
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Hello World'
-    });
+// Use this section to test that web server is awake and responding
+
+app.get('/hello', (routeRequest, routeResult) => {
+  routeResult.json({
+    message: 'Hello World'
+  });
+})
+
+
+// Use this section to test bringing up initial webpage
+
+app.get('/', (routeRequest, routeResult) => {
+  routeResult.sendFile(path.join(__dirname, '/FullStackDemo.html'))
 });
 
-app.get('/:name', (req, res) => {
+// interface Connection {
+// Jonathan -  I forgot what we were doing here
 
-    var url_object = url.parse(req.url);
+//   function connect()
+// }
 
-    let name = req.params.name;
-    console.log("name = "+name);
+// RealConnection extends Connection{
 
-    switch (name) {
-      case "update":
-         console.log("inside of update function")
-         con.connect(function(err) {
-           if (err) throw err;
-           console.log("Connected!");
+//   MySql sql = Connection()
+//   override function connect() {
+//     sql.connect()
+//   }
+// }
 
-           var search_string = url_object.search;
-           let searchParams = new URLSearchParams(url_object.search);
-           let company_name = searchParams.get('name');
-           let company_address = searchParams.get('address');
-           console.log(company_name, company_address);
+// MockConnection extends Connection {
+//   override function connect() {
+//     // no op
+//   }
+// }
 
-           var sql = "INSERT INTO customers (name, address) VALUES ('"+company_name+"', '"+company_address+"')";
-           con.query(sql, function (err, result) {
-             if (err) throw err;
-             console.log("1 record inserted, ID:" + result.insertId);
-             res.json({
-               message: 'Inserted record ' + result.insertId
-             });
-           });
-         });
-         break;
 
-    case "read":
-      console.log("inside of read function")
-      con.connect(function(err) {
-        if (err) throw err;
-        console.log("Connected!");
 
-        let searchParams = new URLSearchParams(url_object.search);
-        let record_id = searchParams.get('recordID');
+app.post('/customer', (routeRequest, routeResult)=> {
+  console.log("inside of POST function")
 
-        var sql = "SELECT * FROM customers WHERE ID = '"+record_id+"'";
-        console.log(sql);
-        con.query(sql, function (err, result, fields) {
-          if (err) throw err;
-          console.log("1 record read: " + result[0].name + " " + result[0].address);
-          res.json({
-            message: 'Retrieved record ' + result[0].name + " " + result[0].address
-          });
-        });
+  let customer = routeRequest.body
+  let name = customer.name
+  let address = customer.address
+
+  connection.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+
+    console.log(name, address);
+
+    var sqlQuery = `INSERT INTO customers (name, address) VALUES ("${name}", "${address}")`;
+    connection.query(sqlQuery, function (err, queryResult) {
+      if (err) throw err;
+      console.log("1 record inserted, ID:" + queryResult.insertId);
+      routeResult.json({
+        message: 'Inserted record ' + queryResult.insertId
       });
+    });
+  });
+})
 
-  }
+app.get('/customer/:id', (routeRequest, routeResult) => {
+  var id = routeRequest.params.id
 
+  console.log("inside of read function")
+  connection.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
 
+    var sqlQuery = `SELECT * FROM customers WHERE ID ="${id}"`;
+    console.log(sqlQuery);
+
+    connection.query(sqlQuery, function (err, queryResult, fields) {
+      if (err) throw err;
+      console.log("1 record read: " + queryResult[0].name + " " + queryResult[0].address);
+      routeResult.json({
+        message: 'Retrieved record ' + queryResult[0].name + " " + queryResult[0].address
+      });
+    });
+  });
 });
 
-
+// Activiate the server
 app.listen(2020, () => {
     console.log('server is listening on port 2020');
 });

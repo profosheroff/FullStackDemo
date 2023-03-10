@@ -2,10 +2,10 @@
 <html lang=en>
 
 <head>
-<meta charset=utf-8>
-<title>Full Stack Demo</title>
+  <meta charset=utf-8>
+  <title>Full Stack Demo</title>
   <link rel="stylesheet" type="text/css" href="style.css">
-  <script type="text/javascript" src="../webServerLink.js" ></script>
+  <script type="text/javascript" src="./webServerLink.js" type="module"></script>
 </head>
 <body>
  <h1>Full Stack Demo</h1>
@@ -22,13 +22,13 @@ Number input: <input type="number" id="number_input" value="123">
 <hr>
 <h2>Linking to external Javascript/TypeScript File:</h2>>
 Text input: <input type="text" id="new_text_input" value="Sally">
-<button onclick="externalFunction()">Submit Another</button>
+<button onclick="externalFunction()">Call External Module</button>
 <p id="new_result"></p>
 
 <hr>
 <h2>Accessing External Web Server - displaying response:</h2>
 
-<button onclick="accessWebserver()">Read</button> 
+<button onclick="accessWebserver()">Query Webserver</button> 
 
 <p id="web_server_result"></p>
 
@@ -67,7 +67,7 @@ Record ID: <input type="text" id="record_id" value="75">
   }
     
   function externalFunction(){
-    testButton()
+    doExternalFunction()
   }
   function accessWebserver(){
     queryWebserver()
