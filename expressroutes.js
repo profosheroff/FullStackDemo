@@ -7,6 +7,7 @@ const path = require('path');
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(express.static(__dirname));
 
 var mysql = require('mysql2');
 
@@ -20,6 +21,13 @@ var connection = mysql.createConnection({
 
 var url = require('url');
 
+// Playing with CORS
+//app.all('/', function(routeRequest, routeResult, next) {
+//  routeResult.header("Access-Control-Allow-Origin", "*");
+//  routeResult.header("Access-Control-Allow-Headers", "X-Requested-With");
+//  next()
+//});
+//
 // Use this section to test that web server is awake and responding
 
 app.get('/hello', (routeRequest, routeResult) => {
